@@ -1,21 +1,15 @@
 from datetime import datetime
 import os
+from rich.console import Console
+from rich.text import Text
+from rich.prompt import Prompt
+from rich.panel import Panel
+from rich.columns import Columns
 
 DATE_FORMAT = "%d-%m-%Y"
 CATEGORIES = {"I": "Income", "E": "Expense"}
 
-# ── ANSI Colors ──────────────────────────────────────────────
-RESET = "\033[0m"
-BOLD = "\033[1m"
-DIM = "\033[2m"
-RED = "\033[91m"
-GREEN = "\033[92m"
-YELLOW = "\033[93m"
-CYAN = "\033[96m"
-WHITE = "\033[97m"
-MAGENTA = "\033[95m"
-BG_RED = "\033[41m"
-BG_GREEN = "\033[42m"
+console = Console()
 
 
 def clear_screen():
@@ -23,31 +17,31 @@ def clear_screen():
 
 
 def colored_input(prompt):
-    """Styled input prompt."""
-    return input(f"  {CYAN}{BOLD}> {RESET}{prompt}")
+    """Styled input prompt using rich."""
+    return Prompt.ask(f"  [bold cyan]>[/bold cyan] {prompt}")
 
 
 def success(msg):
-    print(f"  {GREEN}{BOLD}✓ {msg}{RESET}")
+    console.print(f"  [bold green]✓ {msg}[/bold green]")
 
 
 def error(msg):
-    print(f"  {RED}{BOLD}✗ {msg}{RESET}")
+    console.print(f"  [bold red]✗ {msg}[/bold red]")
 
 
 def warn(msg):
-    print(f"  {YELLOW}{BOLD}! {msg}{RESET}")
+    console.print(f"  [bold yellow]⚠ {msg}[/bold yellow]")
 
 
 def info(msg):
-    print(f"  {CYAN}ℹ {msg}{RESET}")
+    console.print(f"  [cyan]ℹ {msg}[/cyan]")
 
 
 def get_date(prompt, allow_default=False):
     date_str = colored_input(prompt)
     if allow_default and not date_str:
         today = datetime.today().strftime(DATE_FORMAT)
-        info(f"Using today's date: {today}")
+        info(f"Using today's date: [bold]{today}[/bold]")
         return today
 
     try:
@@ -70,9 +64,15 @@ def get_amount():
 
 
 def get_category():
-    print(f"\n  {DIM}Categories:{RESET}")
-    print(f"    {GREEN}[I]{RESET} Income    {RED}[E]{RESET} Expense")
-    category = colored_input("Category: ").upper()
+    console.print()
+    cat_panel = Panel(
+        "[green][bold]I[/bold] → Income[/green]    [red][bold]E[/bold] → Expense[/red]",
+        title="[dim]Categories[/dim]",
+        border_style="dim",
+        padding=(0, 2),
+    )
+    console.print(cat_panel)
+    category = colored_input("Category").upper()
     if category in CATEGORIES:
         return CATEGORIES[category]
 
@@ -81,4 +81,4 @@ def get_category():
 
 
 def get_description():
-    return colored_input("Description (optional): ")
+    return colored_input("Description (optional)")
